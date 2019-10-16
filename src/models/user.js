@@ -27,6 +27,9 @@ export default (sequelize, DataTypes) => {
     }
   });
 
-
+  User.associate = (models) => {
+    // associations can be defined here
+    User.belongsToMany(models.transaction, { as: 'Transactions', through: 'user_transactions' });
+  };
   return User;
 };
