@@ -20,6 +20,14 @@ export default class transactions {
 
   static async validateTransaction(transactionObj) {
     if (!currencies.includes(currency)) return { valid: false, message: 'Invalid Currency' } 
-    if (transactionObj.currencyAmount <= 0) return { valid: false, message: 'Invalid Amount' }  
+    if (transactionObj.currencyAmount <= 0) return { valid: false, message: 'Invalid Amount' }
+    let query = {}
+    query[wallet] = transactionObj.sourceUserId
+    let [sourceUser, err1] = await of(user.findOne({ where: query }))
+
+    if (!(sourceUser !== null && sourceUser !== '')) {
+      return { valid: false, message: 'DB Error', error: err1 }
+    }
+    sourceUser = sourceUser.dataValues  
   }
 }
