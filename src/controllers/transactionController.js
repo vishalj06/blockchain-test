@@ -49,5 +49,10 @@ export default class transactions {
       return { valid: false, message: 'DB Error', error: err1 }
     }
     targetUser = targetUser.dataValues
+
+    //check for accepting max currency by target
+    if (targetUser[max] < transactionObj.currencyAmount) {
+      return { valid: false, message: 'Transaction amount greater than limit' }
+    }
   }
 }
