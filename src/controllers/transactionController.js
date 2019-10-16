@@ -7,16 +7,21 @@ const currencies = ['bitcoin', 'ethereum']
 let balance, wallet, max, currency
 export default class transactions {
   static async validateAndPerformTransaction(req, res) {
+    //transaction object
     let transactionObj = req.body
+    //variable for key for generic for all currencies
     currency = transactionObj.currencyType
     balance = currency + 'Balance'
     wallet = currency + 'Wallet'
     max = 'max' + currency.charAt(0).toUpperCase() + currency.slice(1)
 
+    //time when transaction begun
     transactionObj.createdAt = Date.now();
+    //validate transaction
     const validateRes = await transactions.validateTransaction(transactionObj)
-    if (!validateRes.valid)
-      res.send({ status: 400, error: validateRes })
+    //if not valid return error
+    if (!validateRes.valid) res.send({ status: 400, error: validateRes })
+    //if valid then perform it 
     else {
       const response = await transactions.performTransaction(transactionObj, validateRes.sourceUser, validateRes.targetUser)
       res.send(response)
@@ -70,9 +75,7 @@ export default class transactions {
     query[wallet] = sourceUser[wallet]
 
     insertDB = await of(user.update(sourceUpdate, { where: query }))
-    if (insertDB[1]) {
-      return { status: 500, error: insertDB[1] }
-    }
+    if (insertDB[1]) return { status: 500, error: insertDB[1] }
 
     //update target user account
     let targetUpdate = {}
@@ -80,8 +83,18 @@ export default class transactions {
     query[wallet] = sourceUser[wallet]
 
     insertDB = await of(user.update(targetUpdate, { where: query }))
+    if (insertDB[1]) return { status: 500, error: insertDB[1] }
+    //add transaction to DB and then return response 
+    return await transactions.insertTransaction(transactionObj)
+  }
+  static async insertTransaction(transactionObj) {
+    //current time when transaction is processed
+    transactionObj.processedAt = Date.now();
+    transactionObj.state = 'success'
+    insertDB = await of(transaction.create(transactionObj))
     if (insertDB[1]) {
       return { status: 500, error: insertDB[1] }
     }
+    return { status: 201, Response: { transactionObj, message: 'transaction confirmed' } }
   }
 }
