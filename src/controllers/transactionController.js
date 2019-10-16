@@ -40,5 +40,14 @@ export default class transactions {
     //check account have sufficient balance 
     if (sourceUser[balance] < transactionObj.currencyAmount)
       return { valid: false, message: 'Insufficient Balance' }
+
+    //retrieve target account 
+    query[wallet] = transactionObj.targetUserId
+
+    let [targetUser, err2] = await of(user.findOne({ where: query }))
+    if (!(targetUser !== null && targetUser !== '')) {
+      return { valid: false, message: 'DB Error', error: err1 }
+    }
+    targetUser = targetUser.dataValues
   }
 }
