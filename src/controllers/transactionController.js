@@ -63,7 +63,7 @@ export default class transactions {
     return { valid: true, sourceUser, targetUser, message: 'Transaction valid' }
   }
   static async performTransaction(transactionObj, sourceUser, targetUser) {
-
+    //update source user account 
     let sourceUpdate = {}
     sourceUpdate[balance] = sourceUser[balance] - transactionObj.currencyAmount
     let query = {}
@@ -74,5 +74,14 @@ export default class transactions {
       return { status: 500, error: insertDB[1] }
     }
 
+    //update target user account
+    let targetUpdate = {}
+    targetUpdate[balance] = targetUser[balance] + transactionObj.currencyAmount
+    query[wallet] = sourceUser[wallet]
+
+    insertDB = await of(user.update(targetUpdate, { where: query }))
+    if (insertDB[1]) {
+      return { status: 500, error: insertDB[1] }
+    }
   }
 }
