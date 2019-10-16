@@ -19,6 +19,7 @@ export default class transactions {
   }
 
   static async validateTransaction(transactionObj) {
-    if (!currencies.includes(currency)) return { valid: false, message: 'Invalid Currency' }   
+    if (!currencies.includes(currency)) return { valid: false, message: 'Invalid Currency' } 
+    if (transactionObj.currencyAmount <= 0) return { valid: false, message: 'Invalid Amount' }  
   }
 }
