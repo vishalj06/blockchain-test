@@ -15,7 +15,12 @@ export default class transactions {
 
     transactionObj.createdAt = Date.now();
     const validateRes = await transactions.validateTransaction(transactionObj)
-    res.send(validateRes)
+    if (!validateRes.valid)
+      res.send({ status: 400, error: validateRes })
+    else {
+      const response = await transactions.performTransaction(transactionObj, validateRes.sourceUser, validateRes.targetUser)
+      res.send(response)
+    }
   }
 
   static async validateTransaction(transactionObj) {
@@ -54,5 +59,20 @@ export default class transactions {
     if (targetUser[max] < transactionObj.currencyAmount) {
       return { valid: false, message: 'Transaction amount greater than limit' }
     }
+    //if all pass return valid signal
+    return { valid: true, sourceUser, targetUser, message: 'Transaction valid' }
+  }
+  static async performTransaction(transactionObj, sourceUser, targetUser) {
+
+    let sourceUpdate = {}
+    sourceUpdate[balance] = sourceUser[balance] - transactionObj.currencyAmount
+    let query = {}
+    query[wallet] = sourceUser[wallet]
+
+    insertDB = await of(user.update(sourceUpdate, { where: query }))
+    if (insertDB[1]) {
+      return { status: 500, error: insertDB[1] }
+    }
+
   }
 }
