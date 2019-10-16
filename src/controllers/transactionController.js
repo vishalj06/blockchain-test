@@ -19,15 +19,23 @@ export default class transactions {
   }
 
   static async validateTransaction(transactionObj) {
+    //currency check
     if (!currencies.includes(currency)) return { valid: false, message: 'Invalid Currency' } 
+    // zero amount check
     if (transactionObj.currencyAmount <= 0) return { valid: false, message: 'Invalid Amount' }
+
+    //retrieve source user account from DB
     let query = {}
     query[wallet] = transactionObj.sourceUserId
     let [sourceUser, err1] = await of(user.findOne({ where: query }))
 
     if (!(sourceUser !== null && sourceUser !== '')) {
       return { valid: false, message: 'DB Error', error: err1 }
-    }
-    sourceUser = sourceUser.dataValues  
+    }    
+    sourceUser = sourceUser.dataValues
+
+    //check if transaction amount is less than max
+    if (sourceUser[max] < transactionObj.currencyAmount)
+      return { valid: false, message: 'Transaction amount greater than limit' }  
   }
 }
