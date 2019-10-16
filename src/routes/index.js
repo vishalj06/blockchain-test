@@ -1,11 +1,9 @@
 import { Router } from 'express';
-import users from '../controllers/userController'
-import transaction from '../controllers/transactionController';
-
+import {users, transactions} from '../controllers'
 const router = Router();
 
 // Routes
 router.post('/createUser', users.createUser);
-router.post('/transaction',transaction.validateAndPerformTransaction)
+router.post('/transaction',transactions.validateAndPerformTransaction)
 
 export default router;
