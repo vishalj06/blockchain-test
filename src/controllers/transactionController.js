@@ -20,7 +20,7 @@ export default class transactions {
 
   static async validateTransaction(transactionObj) {
     //currency check
-    if (!currencies.includes(currency)) return { valid: false, message: 'Invalid Currency' } 
+    if (!currencies.includes(currency)) return { valid: false, message: 'Invalid Currency' }
     // zero amount check
     if (transactionObj.currencyAmount <= 0) return { valid: false, message: 'Invalid Amount' }
 
@@ -31,11 +31,14 @@ export default class transactions {
 
     if (!(sourceUser !== null && sourceUser !== '')) {
       return { valid: false, message: 'DB Error', error: err1 }
-    }    
+    }
     sourceUser = sourceUser.dataValues
 
     //check if transaction amount is less than max
     if (sourceUser[max] < transactionObj.currencyAmount)
-      return { valid: false, message: 'Transaction amount greater than limit' }  
+      return { valid: false, message: 'Transaction amount greater than limit' }
+    //check account have sufficient balance 
+    if (sourceUser[balance] < transactionObj.currencyAmount)
+      return { valid: false, message: 'Insufficient Balance' }
   }
 }
