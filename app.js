@@ -31,6 +31,5 @@ app.use(express.static('../public'));
 app.use('/', routes);
 app.listen(3000, () => {
   db.sequelize.sync();
-  // db.sequelize.sync({force : true });
 });
 

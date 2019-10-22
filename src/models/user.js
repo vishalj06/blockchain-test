@@ -17,9 +17,5 @@ export default (sequelize, DataTypes) => {
     maxEthereum: { type: DataTypes.DECIMAL(12, 8), field: 'max_ethereum' }
   }, {});
 
-  User.associate = (models) => {
-    // associations can be defined here
-    User.belongsToMany(models.transaction, { as: 'Transactions', through: 'user_transactions' });
-  };
   return User;
 };

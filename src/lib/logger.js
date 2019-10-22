@@ -7,7 +7,7 @@ const logDir = 'logs';
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
 }
-let logLevel =  'error';
+let logLevel = 'error';
 
 const transports = [
   new winston.transports.File({
@@ -21,7 +21,7 @@ const transports = [
   })
 ];
 
-if(!process.env.NODE_ENV || process.env.NODE_ENV==='development')
+if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development')
   transports.push(new winston.transports.Console({
     level: 'debug',
     handleExceptions: true,
@@ -29,7 +29,7 @@ if(!process.env.NODE_ENV || process.env.NODE_ENV==='development')
     colorize: true,
   }));
 
-const logger = new winston.createLogger({level: winston.config.npm.levels,transports: transports, exitOnError: false});
+const logger = new winston.createLogger({ level: winston.config.npm.levels, transports: transports, exitOnError: false });
 
 module.exports = logger;
 

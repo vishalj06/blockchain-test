@@ -6,8 +6,7 @@
   "scripts": {
     "pretest": "eslint --ignore-path .gitignore .",
     "start": "nodemon  --exec babel-node app.js",
-    "build": "babel --presets es2015 -d lib/ src",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "babel --presets es2015 -d lib/ src"
   },
   "author": "",
   "license": "ISC",
@@ -19,13 +18,11 @@
     "cookie-parser": "^1.4.4",
     "cookie-session": "^1.3.3",
     "ejs": "^2.7.1",
+    "eslint": "^6.5.1",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "jade": "^1.11.0",
     "morgan": "^1.9.1",
-    "passport": "^0.4.0",
-    "passport-google-oauth20": "^2.0.0",
-    "passport-linkedin-oauth2": "^2.0.0",
     "pg": "^7.12.1",
     "pug": "^2.0.4",
     "queue-fifo": "^0.2.6",

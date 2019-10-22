@@ -12,7 +12,7 @@ export default (sequelize, DataTypes) => {
     targetUserId: { type: DataTypes.STRING, allowNull: false, field: 'target_user_id' },
     createdAt: { type: DataTypes.DATE, field: 'created_at' },
     processedAt: { type: DataTypes.DATE, field: 'processed_at' },
-    state: DataTypes.ENUM('success', 'fail')
+    state: DataTypes.ENUM('success', 'failed')
 
   }, {});
   return Transaction;

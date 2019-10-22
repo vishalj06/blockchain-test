@@ -31,6 +31,9 @@ export class TransactionStatus {
     if (!regEx.test(transactionId)) Responder.operationFailed(res, new BadRequestError("Invalid Transaction ID"))
     const [fetchTx, fetchEr] = await of(transaction.findOne({ where: { transactionId } }))
     if (fetchEr) Responder.operationFailed(res, new ServiceUnavailableError("DB Error"))
+    if (!(fetchTx !== null && fetchTx !== '')) {
+      return Responder.operationFailed(res, new ServiceUnavailableError(`Transaction for ${transactionId} not found`))
+    }
     return Responder.success(res, { TransactionStatus: fetchTx.dataValues.state })
   }
 }
