@@ -108,8 +108,9 @@ export class PerformTransaction {
     return { valid: true, transactionId: transactionObj.transactionId, message: 'Transaction valid' }
   }
 
-  static async executeTransaction(transactionObj, i) {
+  static async executeTransaction(transactionObj) {
     let [sourceUser, err2] = await of(user.findOne({ where: { email: transactionObj.sourceUserId } }))
+    // console.log(sourceUser,err2)
     if (err2) return { status: 500, error: err2 }
     if (!(sourceUser !== null && sourceUser !== '')) {
       return { valid: false, message: 'user not found' }
@@ -122,11 +123,10 @@ export class PerformTransaction {
 
     //update source user account 
     let sourceUpdate = {}
-    sourceUpdate[balance] = sourceUser[balance] - transactionObj.currencyAmount
+    sourceUpdate[balance] = transactionObj.currencyAmount
     let query = {}
     query["email"] = transactionObj.sourceUserId
-
-    insertDB = await of(user.update(sourceUpdate, { where: query }))
+    insertDB = await of(user.decrement(sourceUpdate, { where: query }))
     if (insertDB[1]) return { status: 500, error: insertDB[1] }
     if (insertDB[0][0] != 1) console.log({ status: 401, error: insertDB })
 
@@ -136,13 +136,12 @@ export class PerformTransaction {
     insertDB = await of(user.increment(targetUpdate, { where: { email: transactionObj.targetUserId } }))
     if (insertDB[1]) return { status: 500, error: insertDB[1] }
     if (insertDB[0][0][1] == 0) return { status: 401, error: insertDB }
-
     //transaction object
     return { status: 200, message: 'transaction successful' }
   }
 
   static async insertTransaction(transactionObj) {
-    //current time when transaction is processed
+    //current time when transaction is processedss
     transactionObj.processedAt = Date.now();
     insertDB = await of(transaction.create(transactionObj))
 

@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { Login, Home, Dashboard, AddWallet, SignUp, Logout } from '../controllers/user'
 import { PerformTransaction, TransactionHistory, TransactionStatus } from '../controllers/transaction'
 import { verifySessionExist, verifySessionNotExist } from '../lib/utill';
-import { TestScript } from '../controllers/transaction/testScript';
 const router = Router();
 
 // Routes
@@ -15,7 +14,6 @@ router.get('/addWallet', verifySessionExist, AddWallet.perform);
 router.get('/makeTransaction', verifySessionExist, PerformTransaction.perform);
 router.get('/transactionHistory', verifySessionExist, TransactionHistory.perform)
 router.get('/transactionStatus', verifySessionExist, TransactionStatus.perform)
-router.get('/test', TestScript.test)
 
 router.post('/getTransactionHistory', verifySessionExist, TransactionHistory.getTransactionHistory)
 router.post('/createUser', SignUp.createUser);
