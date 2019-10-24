@@ -1,6 +1,5 @@
 import { default as models } from '../../models/index';
 import of from 'await-of';
-import Sequelize from 'sequelize';
 import uuidv1 from 'uuid/v1'
 import { BadRequestError, ServiceUnavailableError } from '../../errors';
 import Responder from '../../lib/expressResponder';
@@ -8,8 +7,8 @@ import logger from '../../lib/logger'
 import { argumentValidator } from '../../lib/utill';
 import { userChannels, TxQueue } from './transactionHandler';
 
+const { user, transaction, Sequelize, sequelize } = models;
 const { Op } = Sequelize
-const { user, transaction } = models;
 let insertDB
 const currencies = ['bitcoin', 'ethereum']
 let balance, wallet, max, currency
@@ -24,11 +23,11 @@ const requestValidation = {
   required: ['currencyType', 'currencyAmount', 'targetWallet']
 }
 export class PerformTransaction {
+
   static async perform(req, res) {
     return Responder.render(res, "makeTransaction", "Add transaction Data");
   }
   static async validateAndPerformTransaction(req, res) {
-
     //transaction object
     const requestData = await argumentValidator(res, requestValidation, req.body)
     if (!requestData.valid) return
@@ -109,39 +108,54 @@ export class PerformTransaction {
   }
 
   static async executeTransaction(transactionObj) {
-    let [sourceUser, err2] = await of(user.findOne({ where: { email: transactionObj.sourceUserId } }))
-    // console.log(sourceUser,err2)
-    if (err2) return { status: 500, error: err2 }
-    if (!(sourceUser !== null && sourceUser !== '')) {
-      return { valid: false, message: 'user not found' }
-    }
+    return sequelize.transaction(function (t) {
+      return of(user.findOne({ where: { email: transactionObj.sourceUserId } }, { transaction: t })).then(function ([sourceUser, err2]) {
 
-    sourceUser = sourceUser.dataValues
-    //check account have sufficient balance 
-    if (sourceUser[balance] < transactionObj.currencyAmount)
-      return { status: 401, message: 'Insufficient Balance' }
+        if (err2) throw { status: 500, error: err2 }
+        if (!(sourceUser !== null && sourceUser !== '')) {
+          throw { status: 401, valid: false, message: 'source user not found' }
+        }
+        sourceUser = sourceUser.dataValues
+        //check account have sufficient balance 
+        if (sourceUser[balance] < transactionObj.currencyAmount)
+          throw { status: 401, message: 'Insufficient Balance' }
 
-    //update source user account 
-    let sourceUpdate = {}
-    sourceUpdate[balance] = transactionObj.currencyAmount
-    let query = {}
-    query["email"] = transactionObj.sourceUserId
-    insertDB = await of(user.decrement(sourceUpdate, { where: query }))
-    if (insertDB[1]) return { status: 500, error: insertDB[1] }
-    if (insertDB[0][0] != 1) console.log({ status: 401, error: insertDB })
+        //update source user account 
+        let sourceUpdate = {}
+        sourceUpdate[balance] = transactionObj.currencyAmount
+        let query = {}
+        query["email"] = transactionObj.sourceUserId
 
-    //update target user account
-    let targetUpdate = {}
-    targetUpdate[balance] = transactionObj.currencyAmount
-    insertDB = await of(user.increment(targetUpdate, { where: { email: transactionObj.targetUserId } }))
-    if (insertDB[1]) return { status: 500, error: insertDB[1] }
-    if (insertDB[0][0][1] == 0) return { status: 401, error: insertDB }
-    //transaction object
-    return { status: 200, message: 'transaction successful' }
+        return of(user.decrement(sourceUpdate, { where: query }, { transaction: t })).then((insertDB) => {
+
+          if (insertDB[1]) throw { status: 500, error: insertDB[1] }
+          if (insertDB[0][0][1] != 1) throw { status: 401, error: insertDB }
+
+          //update target user account
+          let targetUpdate = {}
+          targetUpdate[balance] = transactionObj.currencyAmount
+
+          return of(user.increment(targetUpdate, { where: { email: transactionObj.targetUserId } }, { transaction: t })).then((insertDB) => {
+
+            if (insertDB[1]) throw { status: 500, error: insertDB[1] }
+            if (insertDB[0][0][1] == 0) throw { status: 401, error: insertDB }
+
+            return { status: 200, message: 'transaction successful' }
+
+          })
+        })
+      })
+    }).then((result) => {
+      console.log("returned result", result)
+      return result
+    }).catch((err) => {
+      console.log("error thrown", err)
+      return err
+    })
   }
 
   static async insertTransaction(transactionObj) {
-    //current time when transaction is processedss
+    //current time when transaction is processed
     transactionObj.processedAt = Date.now();
     insertDB = await of(transaction.create(transactionObj))
 

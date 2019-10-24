@@ -23,7 +23,7 @@ export class Login {
         return Responder.render(res, "login", "User Login");
     }
     static async userLogin(req, res) {
-        let requestData =await  argumentValidator(res, requestValidation, req.body)
+        let requestData = await argumentValidator(res, requestValidation, req.body)
         if (!requestData.valid) return
         requestData = requestData.response
         let [userDetails, fetchErr] = await of(user.findOne({ where: { email: requestData.email } }));

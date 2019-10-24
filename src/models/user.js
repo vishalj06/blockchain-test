@@ -10,12 +10,11 @@ export default (sequelize, DataTypes) => {
     email: DataTypes.STRING,
     password: DataTypes.STRING,
     bitcoinWallet: { type: DataTypes.STRING, field: 'bitcoin_wallet', unique: true },
-    bitcoinBalance: { type: DataTypes.DECIMAL(12, 8), field: 'bitcoin_balance' },
-    maxBitcoin: { type: DataTypes.DECIMAL(12, 8), field: 'max_bitcoin' },
+    bitcoinBalance: { type: DataTypes.DECIMAL(28, 18), field: 'bitcoin_balance' },
+    maxBitcoin: { type: DataTypes.DECIMAL(28, 18), field: 'max_bitcoin' },
     ethereumWallet: { type: DataTypes.STRING, field: 'ethereum_wallet', unique: true },
-    ethereumBalance: { type: DataTypes.DECIMAL(12, 8), field: 'ethereum_balance' },
-    maxEthereum: { type: DataTypes.DECIMAL(12, 8), field: 'max_ethereum' }
+    ethereumBalance: { type: DataTypes.DECIMAL(28, 18), field: 'ethereum_balance' },
+    maxEthereum: { type: DataTypes.DECIMAL(28, 18), field: 'max_ethereum' }
   }, {});
-
   return User;
 };

@@ -28,7 +28,7 @@ async function executeChannelTransaction(userEmail) {
         }
       }
       if (response.status != 200) {
-        logger.info('Transaction Failed', response.error)
+        logger.info('Transaction Failed', response.error || response.message)
         transactionObj.state = 'failed'
       }
       if (response.status == 200) {
